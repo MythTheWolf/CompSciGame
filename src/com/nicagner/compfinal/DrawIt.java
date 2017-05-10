@@ -1,4 +1,4 @@
-package knightmoves;
+package com.nicagner.compfinal;
 //Name -  
 //Date -
 //Class -
@@ -9,6 +9,7 @@ import java.awt.Component;
 
 import javax.swing.JFrame;
 
+@SuppressWarnings("serial")
 public class DrawIt extends JFrame
 {
 	public static int WIDTH = 800;

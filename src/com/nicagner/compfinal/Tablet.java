@@ -1,4 +1,5 @@
-package knightmoves;
+package com.nicagner.compfinal;
+
 //(c) A+ Computer Science
 
 //www.apluscompsci.com
@@ -71,20 +72,9 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 		TK = Toolkit.getDefaultToolkit();
 		keys = new boolean[6];
 		knight = new Image[12];
-		goblinidle = TK.getImage(getClass().getResource("goblin/gobby_idleL_strip8.png"));
-		knight[0] = TK.getImage(getClass().getResource("knightmove/moveL1.png"));
-		knight[1] = TK.getImage(getClass().getResource("knightmove/moveL2.png"));
-		knight[2] = TK.getImage(getClass().getResource("knightmove/moveL3.png"));
-		knight[3] = TK.getImage(getClass().getResource("knightmove/moveL4.png"));
-		knight[4] = TK.getImage(getClass().getResource("knightmove/moveL5.png"));
-		knight[5] = TK.getImage(getClass().getResource("knightmove/moveL6.png"));
-
-		knight[6] = TK.getImage(getClass().getResource("knightmove/moveR1.png"));
-		knight[7] = TK.getImage(getClass().getResource("knightmove/moveR2.png"));
-		knight[8] = TK.getImage(getClass().getResource("knightmove/moveR3.png"));
-		knight[9] = TK.getImage(getClass().getResource("knightmove/moveR4.png"));
-		knight[10] = TK.getImage(getClass().getResource("knightmove/moveR5.png"));
-		knight[11] = TK.getImage(getClass().getResource("knightmove/moveR6.png"));
+		goblinidle = TK.getImage(getClass().getResource(
+				"goblin/gobby_idleL_strip8.png"));
+		knight = this.importImages(0, "resource/knightmove/", 5);
 		setBackground(Color.BLACK);
 
 		timer.start();
@@ -160,7 +150,8 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 			if (knightPos.y < 0) {
 				knightPos.y = DrawIt.HEIGHT;
 			}
-			if (Math.abs(knightPos.x - goblinPos.x) < 10 && Math.abs(knightPos.y - goblinPos.y) < 10) {
+			if (Math.abs(knightPos.x - goblinPos.x) < 10
+					&& Math.abs(knightPos.y - goblinPos.y) < 10) {
 				window.setColor(Color.RED);
 			} else {
 				window.setColor(Color.BLACK);
@@ -168,19 +159,20 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 			window.fillRect(0, 0, DrawIt.WIDTH, DrawIt.HEIGHT);
 			window.setColor(Color.WHITE);
 			window.drawImage(knight[frame], knightPos.x, knightPos.y, this);
-			drawFrame(goblinidle, window, goblinPos.x, goblinPos.y, goblinframe, 8, 32, 32);
+			drawFrame(goblinidle, window, goblinPos.x, goblinPos.y,
+					goblinframe, 8, 32, 32);
 			// window.fillOval(x, y, 20, 20);
 		} else {
 			window.setColor(Color.BLACK);
 		}
 	}
 
-	private void drawFrame(Image goblin, Graphics window, int posX, int posY, int frameCountPos, int numFrames,
-			int height, int width) {
+	private void drawFrame(Image goblin, Graphics window, int posX, int posY,
+			int frameCountPos, int numFrames, int height, int width) {
 		int frameX = (frameCountPos % numFrames) * width;
 		int frameY = (frameCountPos / numFrames) * height;
-		window.drawImage(goblin, posX, posY, posX + width, posY + height, frameX, frameY, frameX + width,
-				frameY + height, this);
+		window.drawImage(goblin, posX, posY, posX + width, posY + height,
+				frameX, frameY, frameX + width, frameY + height, this);
 
 	}
 
@@ -235,20 +227,25 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 	public void run() {
 		try {
 			while (true) {
-				Thread.currentThread().sleep(5);
+				Thread.currentThread();
+				Thread.sleep(5);
 				repaint();
 			}
 		} catch (Exception e) {
 		}
 	}
 
-	public void importImages(int arrayIndex, String pre) {
-		for (int IMAGE_POS = 1; IMAGE_POS < 6; IMAGE_POS++) {
+	public Image[] importImages(Image[] org, int pos, String path, int numSpots) {
 
-			for (int i = arrayIndex; i < arrayIndex + 6; i++) {
-				System.out.println("GET::" + pre + IMAGE_POS + "--->[" + i + "]");
-				knight[i] = TK.getImage(getClass().getResource("knightmove/" + pre + IMAGE_POS + ".png"));
-			}
+		Image[] ret = new Image[numSpots];
+		for (int i = 0; i < pos; i++) {
+			ret[i] = org[i];
 		}
+		for (int i = pos; i < numSpots; i++) {
+			System.out.println("GET--->" + path + (i + 1));
+			ret[i] = TK.getImage(getClass().getResource(path + (i + 1)));
+		}
+		return ret;
 	}
+
 }
