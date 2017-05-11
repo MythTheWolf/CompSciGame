@@ -32,6 +32,7 @@ public class DrawIt extends JFrame
 
 	public static void main( String args[] )
 	{
+		@SuppressWarnings("unused")
 		DrawIt run = new DrawIt();
 	}
 }

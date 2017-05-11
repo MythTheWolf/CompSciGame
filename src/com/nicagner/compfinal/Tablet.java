@@ -19,29 +19,51 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import com.nicagner.compfinal.lib.text.TextTick;
+
 public class Tablet extends JPanel implements KeyListener, Runnable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private boolean[] keys;
 	private Image[] knight;
 	private Timer timer;
 	private int frame = 0;
 	private Toolkit TK;
+	public Point PauseText;
 	private int goblinframe = 0;
 	private Image goblinidle;
 	private Point knightPos = new Point(300, 300);
-	private Point goblinPos = new Point(200, 200);
+	private Point[] goblinPositions = new Point[10];
 	private boolean left = false;
 	private boolean paused;
+	private List<String> statusText = new ArrayList<String>();
+	private TextTick clas;
+	private Timer TextTick;
 
 	public Tablet(JFrame par) {
+		int spacing = 50;
+		Random rand = new Random();
+		for (int i = 0; i < goblinPositions.length; i++) {
 
+			int pickedNumber = rand.nextInt(500) + 50;
+			goblinPositions[i] = new Point(pickedNumber, spacing);
+			spacing += 50;
+			System.out.println(goblinPositions[i].toString());
+		}
 		if (!left) {
 			frame = 5;
 		}
+
 		// the keys array will store the key presses
 		// [0]=left arrow
 		// [1]=right arrow
@@ -71,11 +93,13 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 				}
 			}
 		});
+		statusText.add("----Info----");
+		statusText.add("");
+		statusText.add("");
 		TK = Toolkit.getDefaultToolkit();
 		keys = new boolean[20];
 		knight = new Image[12];
-		// goblinidle =
-		// TK.getImage(getClass().getResource("goblin/gobby_idleL_strip8.png"));
+		goblinidle = TK.getImage(getClass().getResource("resources/goblin/gobby_idleL_strip8.png"));
 		knight = this.importImages(knight, 0, "resources/knightmove/moveL", 5);
 		knight = this.importImages(knight, 6, "resources/knightmove/moveR", 5);
 		setBackground(Color.BLACK);
@@ -102,18 +126,13 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 	}
 
 	public void paint(Graphics window) {
-		if(keys[6]){
+		if (keys[6]) {
 			if (!paused) {
-				window.setColor(Color.BLACK);
-				window.fillRect(0, 0, DrawIt.WIDTH, DrawIt.HEIGHT);
+				clas = new TextTick(new Point(DrawIt.WIDTH/2, DrawIt.HEIGHT/2));
+				TextTick = new Timer(75, clas);
+				TextTick.start();
 				paused = true;
-				timer.stop();
-			
-				window.setColor(Color.RED);
-				window.fillRect((DrawIt.WIDTH/2)-200,0,400,400);
-				window.setColor(Color.WHITE);
-				window.drawString("Game is now paused", DrawIt.WIDTH/2, 30);
-			}else{
+			} else {
 				timer.start();
 				paused = false;
 			}
@@ -121,7 +140,6 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 			return;
 		}
 		if (!paused && !keys[6]) {
-
 
 			// add in code to move the x and y
 			// if the up arrow was pressed
@@ -174,27 +192,54 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 				if (knightPos.y < 0) {
 					knightPos.y = DrawIt.HEIGHT;
 				}
-				if (Math.abs(knightPos.x - goblinPos.x) < 10 && Math.abs(knightPos.y - goblinPos.y) < 10) {
+				boolean collide = false;
+				for (Point goblinPos : goblinPositions) {
+					if (Math.abs(knightPos.x - goblinPos.x) <= 20 && Math.abs(knightPos.y - goblinPos.y) <= 20) {
+						collide = true;
+						break;
+					}
+				}
+				if (collide) {
 					window.setColor(Color.RED);
+					window.fillRect(0, 0, DrawIt.WIDTH, DrawIt.HEIGHT);
+					statusText.set(2, "You have colliden!");
 				} else {
 					window.setColor(Color.BLACK);
+					window.fillRect(0, 0, DrawIt.WIDTH, DrawIt.HEIGHT);
+					statusText.set(2, "OK");
+				}
+				window.setColor(Color.WHITE);
+				this.statusText.set(1, "(" + knightPos.x + "," + knightPos.y + ")");
+				window.drawImage(knight[frame], knightPos.x, knightPos.y, this);
+				for (Point goblinPos : goblinPositions) {
+					drawFrame(goblinidle, window, goblinPos.x, goblinPos.y, goblinframe, 8, 32, 32);
+				}
+				// window.fillOval(x, y, 20, 20);
+
+				window.setColor(Color.WHITE);
+				window.setFont(new Font("TAHOMA", Font.BOLD, 18));
+				int spacer = 20;
+				for (String S : this.statusText) {
+					window.drawString(S, 20, spacer);
+					spacer += 20;
 				}
 
-				window.fillRect(0, 0, DrawIt.WIDTH, DrawIt.HEIGHT);
-				window.setColor(Color.WHITE);
-				window.drawString("(" + knightPos.x + "," + knightPos.y + ")", knightPos.x - 5, knightPos.y - 20);
-				window.drawImage(knight[frame], knightPos.x, knightPos.y, this);
-				drawFrame(goblinidle, window, goblinPos.x, goblinPos.y, goblinframe, 8, 32, 32);
-				// window.fillOval(x, y, 20, 20);
 			} else {
-				window.setColor(Color.BLACK);
-			}
-			window.setColor(Color.WHITE);
-			window.setFont(new Font("TAHOMA", Font.BOLD, 18));
-			window.drawString("Much text, very wow", 20, 20);
+				
 
-		} else {
-			// stuff
+			}
+		}else{
+			window.setColor(Color.BLACK);
+			window.fillRect(0, 0, DrawIt.WIDTH, DrawIt.HEIGHT);
+			paused = true;
+			timer.stop();
+			window.setColor(Color.GRAY);
+			
+	       PauseText = clas.getPoint();
+
+			window.drawString("Game is now paused", PauseText.x, PauseText.y);
+			
+			
 		}
 
 	}
@@ -251,7 +296,7 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 		}
 		if (e.getKeyCode() == KeyEvent.VK_X) {
 			keys[5] = false;
-			
+
 		}
 		// repaint();
 	}
@@ -284,5 +329,4 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 		}
 		return ret;
 	}
-
 }
