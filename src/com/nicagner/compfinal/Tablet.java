@@ -27,6 +27,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import com.nicagner.compfinal.lib.entity.EntityGoblinTick;
 import com.nicagner.compfinal.lib.text.TextTick;
 
 public class Tablet extends JPanel implements KeyListener, Runnable {
@@ -42,11 +43,13 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 	public Point PauseText;
 	private int goblinframe = 0;
 	private Image goblinidle;
-	private Point knightPos = new Point(300, 300);
+	private Point knightPos = new Point(400, 529);
 	private Point[] goblinPositions = new Point[10];
 	private boolean left = false;
 	private boolean paused;
 	private List<String> statusText = new ArrayList<String>();
+	private EntityGoblinTick[] goblinTickers = new EntityGoblinTick[10];
+	private Timer[] gobTimers = new Timer[10];
 	private TextTick clas;
 	private Timer TextTick;
 
@@ -56,9 +59,16 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 		for (int i = 0; i < goblinPositions.length; i++) {
 
 			int pickedNumber = rand.nextInt(500) + 50;
+			if (Math.abs(knightPos.x - pickedNumber) <= 20 && Math.abs(knightPos.y - spacing) <= 20) {
+				pickedNumber = rand.nextInt(500) + 50;
+			}
 			goblinPositions[i] = new Point(pickedNumber, spacing);
+			goblinTickers[i] = new EntityGoblinTick(goblinPositions[i]);
+			pickedNumber = rand.nextInt(5) + 3;
+			System.out.println(pickedNumber);
+			gobTimers[i] = new Timer(pickedNumber, goblinTickers[i]);
 			spacing += 50;
-			System.out.println(goblinPositions[i].toString());
+			
 		}
 		if (!left) {
 			frame = 5;
@@ -108,12 +118,18 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 
 		// x and y will keep track of where the pen is
 		// on the screen
-		knightPos.setLocation(DrawIt.WIDTH / 2, DrawIt.HEIGHT / 2);
+		// knightPos.setLocation(DrawIt.WIDTH / 2, DrawIt.HEIGHT / 2);
 
 		this.addKeyListener(this);
 		new Thread(this).start();
 
 		setVisible(true);
+		
+		for(Timer T : gobTimers){
+			
+			T.start();
+			
+		}
 	}
 
 	public void update(Graphics window) {
@@ -128,8 +144,8 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 	public void paint(Graphics window) {
 		if (keys[6]) {
 			if (!paused) {
-				clas = new TextTick(new Point(DrawIt.WIDTH/2, DrawIt.HEIGHT/2));
-				TextTick = new Timer(75, clas);
+				clas = new TextTick(new Point(DrawIt.WIDTH / 2, DrawIt.HEIGHT / 2));
+				TextTick = new Timer(60, clas);
 				TextTick.start();
 				paused = true;
 			} else {
@@ -192,6 +208,7 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 				if (knightPos.y < 0) {
 					knightPos.y = DrawIt.HEIGHT;
 				}
+				
 				boolean collide = false;
 				for (Point goblinPos : goblinPositions) {
 					if (Math.abs(knightPos.x - goblinPos.x) <= 20 && Math.abs(knightPos.y - goblinPos.y) <= 20) {
@@ -225,21 +242,19 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 				}
 
 			} else {
-				
 
 			}
-		}else{
+		} else {
 			window.setColor(Color.BLACK);
 			window.fillRect(0, 0, DrawIt.WIDTH, DrawIt.HEIGHT);
 			paused = true;
 			timer.stop();
 			window.setColor(Color.GRAY);
-			
-	       PauseText = clas.getPoint();
+
+			PauseText = clas.getPoint();
 
 			window.drawString("Game is now paused", PauseText.x, PauseText.y);
-			
-			
+
 		}
 
 	}
@@ -329,4 +344,8 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 		}
 		return ret;
 	}
+	public Point[] getGoblins(){
+		return this.goblinPositions;
+	}
+	
 }
