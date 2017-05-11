@@ -27,7 +27,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import com.nicagner.compfinal.lib.cooldown.LaserShootCooldown;
 import com.nicagner.compfinal.lib.entity.EntityGoblinTick;
+import com.nicagner.compfinal.lib.text.RunShortText;
 import com.nicagner.compfinal.lib.text.TextTick;
 
 public class Tablet extends JPanel implements KeyListener, Runnable {
@@ -47,28 +49,41 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 	private Point[] goblinPositions = new Point[10];
 	private boolean left = false;
 	private boolean paused;
-	private List<String> statusText = new ArrayList<String>();
+	public List<String> statusText = new ArrayList<String>();
 	private EntityGoblinTick[] goblinTickers = new EntityGoblinTick[10];
 	private Timer[] gobTimers = new Timer[10];
 	private TextTick clas;
 	private Timer TextTick;
+	private LaserShootCooldown cooldown = new LaserShootCooldown(this);
+	private Timer cooldownRunner;
+	private int[] gobHealth = new int[10];
+	private boolean isRunning;
+	private int laserY = -1;
+	private int laserX = -999;
+	private Timer laser;
+	private RunShortText RN;
 
 	public Tablet(JFrame par) {
 		int spacing = 50;
 		Random rand = new Random();
-		for (int i = 0; i < goblinPositions.length; i++) {
+		skip: for (int i = 0; i < goblinPositions.length; i++) {
 
 			int pickedNumber = rand.nextInt(500) + 50;
-			if (Math.abs(knightPos.x - pickedNumber) <= 20 && Math.abs(knightPos.y - spacing) <= 20) {
+			if (Math.abs(knightPos.x - pickedNumber) <= 20
+					&& Math.abs(knightPos.y - spacing) <= 20) {
 				pickedNumber = rand.nextInt(500) + 50;
+			}
+			if (goblinPositions[i] == null && gobHealth[i] == -1) {
+				continue skip;
 			}
 			goblinPositions[i] = new Point(pickedNumber, spacing);
 			goblinTickers[i] = new EntityGoblinTick(goblinPositions[i]);
+			gobHealth[i] = 100;
 			pickedNumber = rand.nextInt(5) + 3;
 			System.out.println(pickedNumber);
 			gobTimers[i] = new Timer(pickedNumber, goblinTickers[i]);
 			spacing += 50;
-			
+
 		}
 		if (!left) {
 			frame = 5;
@@ -101,7 +116,9 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 				if (goblinframe >= 8) {
 					goblinframe = 0;
 				}
+
 			}
+
 		});
 		statusText.add("----Info----");
 		statusText.add("");
@@ -109,7 +126,8 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 		TK = Toolkit.getDefaultToolkit();
 		keys = new boolean[20];
 		knight = new Image[12];
-		goblinidle = TK.getImage(getClass().getResource("resources/goblin/gobby_idleL_strip8.png"));
+		goblinidle = TK.getImage(getClass().getResource(
+				"resources/goblin/gobby_idleL_strip8.png"));
 		knight = this.importImages(knight, 0, "resources/knightmove/moveL", 5);
 		knight = this.importImages(knight, 6, "resources/knightmove/moveR", 5);
 		setBackground(Color.BLACK);
@@ -124,11 +142,11 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 		new Thread(this).start();
 
 		setVisible(true);
-		
-		for(Timer T : gobTimers){
-			
+
+		for (Timer T : gobTimers) {
+
 			T.start();
-			
+
 		}
 	}
 
@@ -144,7 +162,8 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 	public void paint(Graphics window) {
 		if (keys[6]) {
 			if (!paused) {
-				clas = new TextTick(new Point(DrawIt.WIDTH / 2, DrawIt.HEIGHT / 2));
+				clas = new TextTick(new Point(DrawIt.WIDTH / 2,
+						DrawIt.HEIGHT / 2));
 				TextTick = new Timer(60, clas);
 				TextTick.start();
 				paused = true;
@@ -186,11 +205,34 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 
 			// if the space bar was pressed
 			if (keys[4]) {
+				if (isRunning && cooldown.isCooldown()) {
+					 RN = new RunShortText(this, "You must wait before using again!");
+				} else {
+					System.out.println("RAN");
+					laserY = knightPos.y + 5;
+					laserX = knightPos.x;
+					cooldown = new LaserShootCooldown(this);
+					cooldownRunner = new Timer(2000, cooldown);
+					cooldownRunner.start();
+					isRunning = true;
+				}
+				keys[4] = false;
+				laser = new Timer(20, new ActionListener() {
 
-				knightPos.x = DrawIt.WIDTH / 2;
-				knightPos.y = DrawIt.HEIGHT / 2;
-				window.setColor(Color.BLACK);
-				window.fillRect(0, 0, DrawIt.WIDTH, DrawIt.HEIGHT);
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						if (laserY <= 0) {
+							System.out.println("STOP");
+							laser.stop();
+							laserX = -999;
+						} else {
+							System.out.println("INC--->" + laserY);
+							laserY -= 10;
+						}
+
+					}
+				});
+				laser.start();
 			}
 			// reset x and y to the center
 			// draw a black rectangle the size of the screen
@@ -208,10 +250,11 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 				if (knightPos.y < 0) {
 					knightPos.y = DrawIt.HEIGHT;
 				}
-				
+
 				boolean collide = false;
 				for (Point goblinPos : goblinPositions) {
-					if (Math.abs(knightPos.x - goblinPos.x) <= 20 && Math.abs(knightPos.y - goblinPos.y) <= 20) {
+					if (Math.abs(knightPos.x - goblinPos.x) <= 20
+							&& Math.abs(knightPos.y - goblinPos.y) <= 20) {
 						collide = true;
 						break;
 					}
@@ -226,21 +269,29 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 					statusText.set(2, "OK");
 				}
 				window.setColor(Color.WHITE);
-				this.statusText.set(1, "(" + knightPos.x + "," + knightPos.y + ")");
+				this.statusText.set(1, "(" + knightPos.x + "," + knightPos.y
+						+ ")");
 				window.drawImage(knight[frame], knightPos.x, knightPos.y, this);
 				for (Point goblinPos : goblinPositions) {
-					drawFrame(goblinidle, window, goblinPos.x, goblinPos.y, goblinframe, 8, 32, 32);
+					drawFrame(goblinidle, window, goblinPos.x, goblinPos.y,
+							goblinframe, 8, 32, 32);
 				}
 				// window.fillOval(x, y, 20, 20);
 
-				window.setColor(Color.WHITE);
 				window.setFont(new Font("TAHOMA", Font.BOLD, 18));
 				int spacer = 20;
+				if(RN.ran()){
+					
+				}
 				for (String S : this.statusText) {
 					window.drawString(S, 20, spacer);
 					spacer += 20;
 				}
-
+				window.setColor(Color.WHITE);
+				if (laserX != -999) {
+					System.out.println("DRAWING!");
+					window.fillRect(laserX, laserY, 4, 4);
+				}
 			} else {
 
 			}
@@ -259,12 +310,12 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 
 	}
 
-	private void drawFrame(Image goblin, Graphics window, int posX, int posY, int frameCountPos, int numFrames,
-			int height, int width) {
+	private void drawFrame(Image goblin, Graphics window, int posX, int posY,
+			int frameCountPos, int numFrames, int height, int width) {
 		int frameX = (frameCountPos % numFrames) * width;
 		int frameY = (frameCountPos / numFrames) * height;
-		window.drawImage(goblin, posX, posY, posX + width, posY + height, frameX, frameY, frameX + width,
-				frameY + height, this);
+		window.drawImage(goblin, posX, posY, posX + width, posY + height,
+				frameX, frameY, frameX + width, frameY + height, this);
 
 	}
 
@@ -306,9 +357,7 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 		if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 			keys[3] = false;
 		}
-		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-			keys[4] = false;
-		}
+
 		if (e.getKeyCode() == KeyEvent.VK_X) {
 			keys[5] = false;
 
@@ -337,15 +386,26 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 		int counter = 1;
 		int array_pos = pos;
 		while (counter < numSpots + 2) {
-			org[array_pos] = TK.getImage(getClass().getResource(path + counter + ".png"));
-			System.out.println("Importing image into data slot " + array_pos + " from source slot  " + counter);
+			org[array_pos] = TK.getImage(getClass().getResource(
+					path + counter + ".png"));
+			System.out.println("Importing image into data slot " + array_pos
+					+ " from source slot  " + counter);
 			counter++;
 			array_pos++;
 		}
 		return ret;
 	}
-	public Point[] getGoblins(){
+
+	public Point[] getGoblins() {
 		return this.goblinPositions;
 	}
-	
+
+	public void setRunning(boolean b) {
+		isRunning = b;
+		cooldownRunner.stop();
+		cooldown.reset();
+		System.out.println("RESET");
+		isRunning = b;
+	}
+
 }
