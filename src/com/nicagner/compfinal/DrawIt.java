@@ -17,7 +17,7 @@ public class DrawIt extends JFrame
 
 	public DrawIt()
 	{
-		super("DrawIt");
+		super("A game name");
 
 		setSize(WIDTH, HEIGHT);
 		setBackground(Color.BLACK);
