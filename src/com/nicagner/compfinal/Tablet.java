@@ -30,6 +30,7 @@ import javax.swing.Timer;
 import com.nicagner.compfinal.lib.cooldown.DamageCooldown;
 import com.nicagner.compfinal.lib.cooldown.LaserShootCooldown;
 import com.nicagner.compfinal.lib.entity.EntityGoblinTick;
+import com.nicagner.compfinal.lib.entity.EntityLaserTick;
 import com.nicagner.compfinal.lib.text.RunShortText;
 import com.nicagner.compfinal.lib.text.TextTick;
 
@@ -37,49 +38,49 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-	private boolean[] keys;
-	private Image[] knight;
-	private Timer timer;
-	private int gobKilled = 0;
-	private int frame = 0;
-	private Toolkit TK;
+	public static final long serialVersionUID = 1L;
+	public boolean[] keys;
+	public Image[] knight;
+	public Timer timer;
+	public int gobKilled = 0;
+	public int frame = 0;
+	public Toolkit TK;
 	public Point PauseText;
-	private int player_health = 100;
-	private int goblinframe = 0;
-	private Image goblinidle;
-	private Point knightPos = new Point(400, 529);
-	private Point[] goblinPositions = new Point[10];
-	private boolean left = false;
-	private boolean paused;
+	public int player_health = 100;
+	public int goblinframe = 0;
+	public Image goblinidle;
+	public Point knightPos = new Point(400, 529);
+	public Point[] goblinPositions = new Point[10];
+	public boolean left = false;
+	public boolean paused;
 	public List<String> statusText = new ArrayList<String>();
-	private EntityGoblinTick[] goblinTickers = new EntityGoblinTick[10];
-	private Timer[] gobTimers = new Timer[10];
-	private TextTick clas;
-	private Timer TextTick;
-	private LaserShootCooldown cooldown = new LaserShootCooldown(this);
-	private Timer cooldownRunner;
-	private int[] gobHealth = new int[10];
-	private boolean isRunning;
-	private boolean[] hitCooldown = new boolean[10];
-	private int laserY = -1;
-	private int laserX = -999;
-	private Timer laser;
-	private RunShortText RN;
-	private Timer TIMER_SHORT;
+	public EntityGoblinTick[] goblinTickers = new EntityGoblinTick[10];
+	public Timer[] gobTimers = new Timer[10];
+	public TextTick clas;
+	public Timer TextTick;
+	public LaserShootCooldown cooldown = new LaserShootCooldown(this);
+	public Timer cooldownRunner;
+	public int[] gobHealth = new int[10];
+	public boolean isRunning;
+	public boolean[] hitCooldown = new boolean[10];
+	public int laserY = -1;
+	public int laserX = -999;
+	public Timer laser;
+	public RunShortText RN;
+	public Timer TIMER_SHORT;
 	public Timer hitter;
 	public boolean hit;
-	private ActionListener DAMAGECOOL;
-	private int numRan = 0;
-	private Timer animate;
-	private String PAUSE_TEXT = "The game is now paused";
-	private boolean PAUSE_LOCK = false;
-	private boolean gunPickedUp = false;
-	private Point GUN_LOC;
-	private Image[] items = new Image[20];
-	private int ammo = 5;
-	private Tablet TMP;
-	private Random rand;
+	public ActionListener DAMAGECOOL;
+	public int numRan = 0;
+	public Timer animate;
+	public String PAUSE_TEXT = "The game is now paused";
+	public boolean PAUSE_LOCK = false;
+	public boolean gunPickedUp = false;
+	public Point GUN_LOC;
+	public Image[] items = new Image[20];
+	public int ammo = 5;
+	public Tablet TMP;
+	public Random rand;
 
 	public Tablet(JFrame par) {
 		int spacing = 50;
@@ -87,7 +88,8 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 		skip: for (int i = 0; i < goblinPositions.length; i++) {
 
 			int pickedNumber = rand.nextInt(500) + 50;
-			if (Math.abs(knightPos.x - pickedNumber) <= 20 && Math.abs(knightPos.y - spacing) <= 20) {
+			if (Math.abs(knightPos.x - pickedNumber) <= 20
+					&& Math.abs(knightPos.y - spacing) <= 20) {
 				pickedNumber = rand.nextInt(500) + 50;
 			}
 			if (goblinPositions[i] == null && gobHealth[i] == -1) {
@@ -100,9 +102,9 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 			goblinTickers[i] = new EntityGoblinTick(goblinPositions[i]);
 			hitCooldown[i] = false;
 			gobHealth[i] = 100;
-			pickedNumber = rand.nextInt(5) + 3;
+			pickedNumber = 3;
 			System.out.println(pickedNumber);
-			gobTimers[i] = new Timer(pickedNumber, goblinTickers[i]);
+			gobTimers[i] = new Timer(5, goblinTickers[i]);
 			spacing += 50;
 
 		}
@@ -149,11 +151,13 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 		TK = Toolkit.getDefaultToolkit();
 		keys = new boolean[20];
 		knight = new Image[12];
-		goblinidle = TK.getImage(getClass().getResource("resources/goblin/gobby_idleL_strip8.png"));
+		goblinidle = TK.getImage(getClass().getResource(
+				"resources/goblin/gobby_idleL_strip8.png"));
 		knight = this.importImages(knight, 0, "resources/knightmove/moveL", 5);
 		knight = this.importImages(knight, 6, "resources/knightmove/moveR", 5);
 		setBackground(Color.BLACK);
-		items[0] = TK.getImage(getClass().getResource("resources/item/gun.png"));
+		items[0] = TK
+				.getImage(getClass().getResource("resources/item/gun.png"));
 		timer.start();
 
 		// x and y will keep track of where the pen is
@@ -178,14 +182,15 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 		setWindow(window);
 	}
 
-	private void setWindow(Graphics window1) {
+	public void setWindow(Graphics window1) {
 
 	}
 
 	public void paint(Graphics window) {
 		if (keys[6]) {
 			if (!paused) {
-				clas = new TextTick(new Point(DrawIt.WIDTH / 2, DrawIt.HEIGHT / 2));
+				clas = new TextTick(new Point(DrawIt.WIDTH / 2,
+						DrawIt.HEIGHT / 2));
 				TextTick = new Timer(60, clas);
 				TextTick.start();
 				paused = true;
@@ -229,7 +234,8 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 			if (keys[4]) {
 				keys[4] = false;
 				if (isRunning && cooldown.isCooldown()) {
-					RN = new RunShortText(this, "You must wait before using again!");
+					RN = new RunShortText(this,
+							"You must wait before using again!");
 					TIMER_SHORT = new Timer(1000, RN);
 					TIMER_SHORT.start();
 				} else {
@@ -247,66 +253,22 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 						int y_temp = rand.nextInt(DrawIt.HEIGHT - 100) + 10;
 
 						GUN_LOC = new Point(x_temp, y_temp);
-						if (Math.abs(knightPos.x - GUN_LOC.x) <= 100 && Math.abs(knightPos.y - GUN_LOC.y) <= 100) {
+						if (Math.abs(knightPos.x - GUN_LOC.x) <= 100
+								&& Math.abs(knightPos.y - GUN_LOC.y) <= 100) {
 							rand = new Random();
 							x_temp = rand.nextInt(DrawIt.WIDTH - 100) + 10;
 							y_temp = rand.nextInt(DrawIt.HEIGHT - 100) + 10;
 							GUN_LOC = new Point(x_temp, y_temp);
 						}
 						gunPickedUp = false;
-						RN = new RunShortText(this, "Out of ammo! Need another gun!");
+						RN = new RunShortText(this,
+								"Out of ammo! Need another gun!");
 						TIMER_SHORT = new Timer(1000, RN);
 						TIMER_SHORT.start();
 					}
 				}
 				TMP = this;
-				laser = new Timer(100, new ActionListener() {
-
-					private Timer TEMP;
-
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						if (laserY <= 0) {
-
-							laser.stop();
-							laserY = 0;
-							laserX = -999;
-						} else {
-
-							laserY -= 10;
-							for (int i = 0; i < goblinPositions.length; i++) {
-								if (Math.abs(goblinPositions[i].x - laserX) <= 50
-										&& (Math.abs(goblinPositions[i].y - laserY) <= 50)) {
-									gobHealth[i] = gobHealth[i] - 25;
-									System.out.println("took away health-->" + i + " NEW -- > " + gobHealth[i]);
-									laserX = -99999;
-									laserY = 99999;
-									if (gobHealth[i] <= 0) {
-										goblinPositions[i] = new Point(-999999, 9999);
-										gobKilled++;
-										RN = new RunShortText(TMP,
-												"Killed Goblin! Only " + (10 - gobKilled) + " more to go!");
-										TIMER_SHORT = new Timer(1000, RN);
-										TIMER_SHORT.start();
-
-									}
-
-									hitCooldown[i] = true;
-									int POS = i;
-									TEMP = new Timer(1000, new ActionListener() {
-
-										@Override
-										public void actionPerformed(ActionEvent e) {
-											TEMP.stop();
-											hitCooldown[POS] = false;
-										}
-									});
-								}
-							}
-						}
-
-					}
-				});
+				laser = new Timer(40, new EntityLaserTick(this));
 				laser.start();
 			}
 			// reset x and y to the center
@@ -334,12 +296,14 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 
 				boolean collide = false;
 				for (Point goblinPos : goblinPositions) {
-					if (Math.abs(knightPos.x - goblinPos.x) <= 20 && Math.abs(knightPos.y - goblinPos.y) <= 20) {
+					if (Math.abs(knightPos.x - goblinPos.x) <= 20
+							&& Math.abs(knightPos.y - goblinPos.y) <= 20) {
 						collide = true;
 						break;
 					}
 				}
-				if (Math.abs(knightPos.x - GUN_LOC.x) <= 20 && Math.abs(knightPos.y - GUN_LOC.y) <= 20) {
+				if (Math.abs(knightPos.x - GUN_LOC.x) <= 20
+						&& Math.abs(knightPos.y - GUN_LOC.y) <= 20) {
 					RN = new RunShortText(this, "Picked up gun!");
 					TIMER_SHORT = new Timer(1000, RN);
 					TIMER_SHORT.start();
@@ -368,7 +332,7 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 						}
 					});
 					hit = true;
-					statusText.set(2, "Health: " + player_health);
+
 					DAMAGECOOL = new DamageCooldown(this);
 					hitter = new Timer(1000, DAMAGECOOL);
 					hitter.start();
@@ -376,7 +340,7 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 					System.out.println("LOOOP.START");
 
 				} else {
-					statusText.set(2, "Health: " + player_health);
+
 				}
 
 				window.setColor(Color.WHITE);
@@ -392,7 +356,12 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 					if (gobHealth[i] <= 0) {
 						continue skip;
 					} else {
-						drawFrame(goblinidle, window, goblinPos.x, goblinPos.y, goblinframe, 8, 32, 32);
+						window.setColor(Color.YELLOW);
+						window.fillRect(goblinPos.x, goblinPos.y-5, 50, 5);
+						window.setColor(Color.GREEN);
+						window.fillRect(goblinPos.x, goblinPos.y-5, gobHealth[i]/2, 5);
+						drawFrame(goblinidle, window, goblinPos.x, goblinPos.y,
+								goblinframe, 8, 32, 32);
 					}
 				}
 				// window.fillOval(x, y, 20, 20);
@@ -416,6 +385,19 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 
 					window.fillRect(laserX, laserY, 4, 4);
 				}
+
+				int healthPos = this.statusText.size() * 20;
+				statusText.set(2, "PICKED: " + healthPos);
+
+				window.setColor(Color.YELLOW);
+				window.fillRect(25, healthPos, 100, 10);
+
+				
+				window.setFont(new Font("TimesRoman", Font.PLAIN, 10));
+				window.setColor(Color.GREEN);
+				window.fillRect(25, healthPos, this.player_health, 10);
+				window.setColor(Color.MAGENTA);
+				window.drawString("(" + this.player_health + "/ 100)", 30, healthPos+8);
 			} else {
 
 			}
@@ -434,12 +416,12 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 
 	}
 
-	private void drawFrame(Image goblin, Graphics window, int posX, int posY, int frameCountPos, int numFrames,
-			int height, int width) {
+	public void drawFrame(Image goblin, Graphics window, int posX, int posY,
+			int frameCountPos, int numFrames, int height, int width) {
 		int frameX = (frameCountPos % numFrames) * width;
 		int frameY = (frameCountPos / numFrames) * height;
-		window.drawImage(goblin, posX, posY, posX + width, posY + height, frameX, frameY, frameX + width,
-				frameY + height, this);
+		window.drawImage(goblin, posX, posY, posX + width, posY + height,
+				frameX, frameY, frameX + width, frameY + height, this);
 
 	}
 
@@ -505,7 +487,7 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 		try {
 			while (true) {
 				Thread.currentThread();
-				// Thread.sleep(5);
+				Thread.sleep(3);
 				repaint();
 			}
 		} catch (Exception e) {
@@ -518,8 +500,10 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 		int counter = 1;
 		int array_pos = pos;
 		while (counter < numSpots + 2) {
-			org[array_pos] = TK.getImage(getClass().getResource(path + counter + ".png"));
-			System.out.println("Importing image into data slot " + array_pos + " from source slot  " + counter);
+			org[array_pos] = TK.getImage(getClass().getResource(
+					path + counter + ".png"));
+			System.out.println("Importing image into data slot " + array_pos
+					+ " from source slot  " + counter);
 			counter++;
 			array_pos++;
 		}
