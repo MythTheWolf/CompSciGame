@@ -230,7 +230,7 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 				keys[4] = false;
 				if (isRunning && cooldown.isCooldown()) {
 					RN = new RunShortText(this, "You must wait before using again!");
-					TIMER_SHORT = new Timer(5000, RN);
+					TIMER_SHORT = new Timer(1000, RN);
 					TIMER_SHORT.start();
 				} else {
 					System.out.println("RAN");
@@ -245,10 +245,17 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 						Random rand = new Random();
 						int x_temp = rand.nextInt(DrawIt.WIDTH - 100) + 10;
 						int y_temp = rand.nextInt(DrawIt.HEIGHT - 100) + 10;
+
 						GUN_LOC = new Point(x_temp, y_temp);
+						if (Math.abs(knightPos.x - GUN_LOC.x) <= 100 && Math.abs(knightPos.y - GUN_LOC.y) <= 100) {
+							rand = new Random();
+							x_temp = rand.nextInt(DrawIt.WIDTH - 100) + 10;
+							y_temp = rand.nextInt(DrawIt.HEIGHT - 100) + 10;
+							GUN_LOC = new Point(x_temp, y_temp);
+						}
 						gunPickedUp = false;
 						RN = new RunShortText(this, "Out of ammo! Need another gun!");
-						TIMER_SHORT = new Timer(5000, RN);
+						TIMER_SHORT = new Timer(1000, RN);
 						TIMER_SHORT.start();
 					}
 				}
@@ -279,7 +286,7 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 										gobKilled++;
 										RN = new RunShortText(TMP,
 												"Killed Goblin! Only " + (10 - gobKilled) + " more to go!");
-										TIMER_SHORT = new Timer(5000, RN);
+										TIMER_SHORT = new Timer(1000, RN);
 										TIMER_SHORT.start();
 
 									}
@@ -334,7 +341,7 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 				}
 				if (Math.abs(knightPos.x - GUN_LOC.x) <= 20 && Math.abs(knightPos.y - GUN_LOC.y) <= 20) {
 					RN = new RunShortText(this, "Picked up gun!");
-					TIMER_SHORT = new Timer(5000, RN);
+					TIMER_SHORT = new Timer(1000, RN);
 					TIMER_SHORT.start();
 					GUN_LOC = new Point(-999, -999);
 					gunPickedUp = true;
@@ -342,7 +349,7 @@ public class Tablet extends JPanel implements KeyListener, Runnable {
 				}
 				if (collide && !hit) {
 					numRan = 0;
-					animate = new Timer(50, new ActionListener() {
+					animate = new Timer(30, new ActionListener() {
 
 						@Override
 						public void actionPerformed(ActionEvent e) {
