@@ -28,6 +28,7 @@ public class EntityGoblinTick implements ActionListener {
 			}
 			gob.x = gob.x-1;
 		}
+		
 	}
 
 	public Point getGoblin() {

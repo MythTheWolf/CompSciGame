@@ -20,6 +20,7 @@ public class EntityLaserTick implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		
 		if (tab.laserY <= 0) {
 
 			tab.laser.stop();
